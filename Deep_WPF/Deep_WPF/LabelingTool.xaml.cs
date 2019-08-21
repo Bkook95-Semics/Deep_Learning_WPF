@@ -61,6 +61,7 @@ namespace Deep_WPF
 
         Boolean isDragging = false;
         System.Windows.Point ptStart;
+        Rectangle rectangle;
         private void Im_Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if(isDragging == false)
@@ -75,25 +76,34 @@ namespace Deep_WPF
             if(isDragging)
             {
                 isDragging = false;
+                
             }
         }
 
         private void Im_Image_MouseMove(object sender, MouseEventArgs e)
         {
-            
             if (isDragging)
             {
+                //if (recSelection.Visibility != Visibility.Visible)
+                //{
+                //    recSelection.Visibility = Visibility.Visible;
+                //}
+
+                //double x = e.GetPosition(Im_Image).X;
+                //double y = e.GetPosition(Im_Image).Y;
+
+                //recSelection.Margin = new Thickness(ptStart.X + 5, ptStart.Y + 5, ptStart.Y + 5, ptStart.X + 5);
+                //recSelection.Width = Abs(ptStart.X - x);
+                //recSelection.Height = Abs(ptStart.Y - y);
+
                 double x = e.GetPosition(Im_Image).X;
                 double y = e.GetPosition(Im_Image).Y;
-                
-                recSelection.Margin = new Thickness(ptStart.X+5, ptStart.Y+5, ptStart.Y+5, ptStart.X+5);
-                recSelection.Width = Abs(ptStart.X - x);
-                recSelection.Height = Abs(ptStart.Y - y);
-                
-                if (recSelection.Visibility != Visibility.Visible)
-                {
-                    recSelection.Visibility = Visibility.Visible;
-                }
+                rectangle = new Rectangle();
+                rectangle.Margin = new Thickness(ptStart.X + 5, ptStart.Y + 5, ptStart.Y + 5, ptStart.X + 5);
+                rectangle.Width = Abs(ptStart.X - x);
+                rectangle.Height = Abs(ptStart.Y - y);
+                rectangle.Stroke = Brushes.Blue; //테두리 색 설정
+                this.canvas1.Children.Add(rectangle);
             }
         }
 
