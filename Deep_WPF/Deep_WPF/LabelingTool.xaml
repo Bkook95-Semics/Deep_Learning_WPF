@@ -1,0 +1,35 @@
+﻿<Window x:Class="Deep_WPF.LabelingTool"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Deep_WPF"
+        mc:Ignorable="d"
+        Title="LabelingTool" Height="500" Width="1000" MinWidth="1000">
+    <DockPanel>
+        <Grid ShowGridLines="false" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="5" Grid.Row="0" Grid.Column="0">INPUT IMAGE PATH :</TextBlock>
+            <TextBox Margin="5" Grid.Row="0" Grid.Column="1" Name="tb_InputDir" HorizontalAlignment="Stretch" IsEnabled="False"></TextBox>
+            <Button Margin="5" Grid.Row="0" Grid.Column="2" Width="20" Name="btn_InputDir" Click="btn_InputDir_Click">...</Button>
+        </Grid>
+
+        <Grid ShowGridLines="false">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Image Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Stretch="Fill" Name="Im_Image" MouseDown="Im_Image_MouseDown" MouseUp="Im_Image_MouseUp" MouseMove="Im_Image_MouseMove"></Image>
+            <ListBox Margin="5" Grid.Column="1" HorizontalAlignment="Right" MinWidth="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged"></ListBox>
+            <Rectangle Grid.Row="0" Name="recSelection" Stroke="Red" Fill="Transparent" Visibility="Collapsed" VerticalAlignment="top" HorizontalAlignment="Left" IsHitTestVisible="False" />
+        </Grid>
+    </DockPanel>
+</Window>
