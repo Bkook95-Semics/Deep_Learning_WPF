@@ -22,13 +22,24 @@
         </Grid>
 
         <Grid ShowGridLines="false" DockPanel.Dock="Right">
-            <ListBox Grid.Column="1" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged"></ListBox>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Margin="5,0,0,-5" HorizontalAlignment="Center">Rect List</TextBlock>
+            <ListBox Grid.Row="1" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_rectlist"></ListBox>
+            <TextBlock Grid.Row="2" Margin="5,0,0,-5" HorizontalAlignment="Center">File List</TextBlock>
+            <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged"></ListBox>
             
         </Grid>
 
-        <Grid DockPanel.Dock="Top" Name="drawGrid">
-            <Image Margin="5" Grid.Column="0" HorizontalAlignment="Left" Stretch="None" Name="Im_Image" MouseDown="Im_Image_MouseDown" MouseUp="Im_Image_MouseUp" MouseMove="Im_Image_MouseMove"></Image>
-            <Canvas Name="canvas1"></Canvas>
+        <Grid DockPanel.Dock="Top" Name="drawGrid" MouseMove="drawGrid_MouseMove"  MouseLeftButtonDown="drawGrid_MouseDown" MouseLeftButtonUp="drawGrid_MouseUp" MouseRightButtonDown="drawGrid_MouseRightButtonDown">
+            <Canvas Margin="5" Name="drawcanvas">
+                <Image Stretch="Fill" Name="Im_Image" ></Image>
+            </Canvas>
+            
         </Grid>
     </DockPanel>
 </Window>

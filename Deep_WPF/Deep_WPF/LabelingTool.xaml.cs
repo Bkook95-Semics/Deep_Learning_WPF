@@ -28,11 +28,18 @@ namespace Deep_WPF
         System.Windows.Point prePosition;
         Rectangle currentRect;
 
+        List<System.Windows.Point> Spointlist = new List<System.Windows.Point>();
+        List<System.Windows.Point> Epointlist = new List<System.Windows.Point>();
+        List<Rectangle> Rectlist = new List<Rectangle>();
+        
+        
+        
+
         public LabelingTool()
         {
             InitializeComponent();
             WindowStyle = WindowStyle.ToolWindow;
-            //ResizeMode = ResizeMode.NoResize;
+            //ResizeMode = ResizeMode.NoResize;            
         }
 
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
@@ -45,6 +52,7 @@ namespace Deep_WPF
             if (result == Winforms.DialogResult.OK)
             {
                 lb_filelist.Items.Clear();
+                Im_Image.Source = null;
                 tb_InputDir.Text = folderPath = folderDlg.SelectedPath;
                 string[] filePaths = Directory.GetFiles(folderDlg.SelectedPath, "*.jpg");
                 foreach (var name in filePaths)
@@ -58,36 +66,43 @@ namespace Deep_WPF
 
         private void lb_filelist_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var ImageMat = new Mat(folderPath + "\\" + lb_filelist.SelectedItem.ToString());
-            int ImageW = ImageMat.Width;
-            int ImageH = ImageMat.Height;
-            Im_Image.Width = ImageW;
-            Im_Image.Height = ImageH;
-            Im_Image.Source = ImageMat.ToWriteableBitmap();
+            if(lb_filelist.Items.Count != 0)
+            {
+                var ImageMat = new Mat(folderPath + "\\" + lb_filelist.SelectedItem.ToString());
+                int ImageW = ImageMat.Width;
+                int ImageH = ImageMat.Height;
+                Im_Image.Width = ImageW;
+                Im_Image.Height = ImageH;
+                Im_Image.Source = ImageMat.ToWriteableBitmap();
+                ResizeWindow(ImageH);
+            }
+            
         }
         
-        private void Im_Image_MouseUp(object sender, MouseButtonEventArgs e)
+        private void drawGrid_MouseUp(object sender, MouseButtonEventArgs e)
         {
             this.Im_Image.ReleaseMouseCapture();
             SetRectangleProperty();
             currentRect = null;
+            Epointlist.Add(e.GetPosition(this.Im_Image));
+            lb_rectlist.Items.Add(string.Format("{0},{1}", Convert.ToInt32(Spointlist.Last().X), Convert.ToInt32(Epointlist.Last().Y)));
+            ListboxAutoScroll(lb_rectlist);
         }
-
-
-        private void Im_Image_MouseDown(object sender, MouseButtonEventArgs e)
+        
+        private void drawGrid_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            prePosition = e.GetPosition(this.drawGrid);
+            prePosition = e.GetPosition(this.Im_Image);
             this.Im_Image.CaptureMouse();
             if (currentRect == null)
             {
+                Spointlist.Add(e.GetPosition(this.Im_Image));
                 CreteRectangle();
             }
         }
-
-
-        private void Im_Image_MouseMove(object sender, MouseEventArgs e)
+        
+        private void drawGrid_MouseMove(object sender, MouseEventArgs e)
         {
-            System.Windows.Point currnetPosition = e.GetPosition(this.drawGrid);
+            System.Windows.Point currnetPosition = e.GetPosition(this.Im_Image);            
             //tb_InputDir.Text = string.Format("마우스 좌표 : [{0},{1}]", currnetPosition.X, currnetPosition.Y);
 
             if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
@@ -110,6 +125,17 @@ namespace Deep_WPF
                     currentRect.Height = Math.Abs(prePosition.Y - currnetPosition.Y);
                 }
             }
+        }
+
+        private void drawGrid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(Rectlist.Count != 0)
+            {
+                drawcanvas.Children.Remove(Rectlist.Last());
+                Rectlist.Remove(Rectlist.Last());
+                lb_rectlist.Items.RemoveAt(lb_rectlist.Items.Count - 1);
+            }
+            
         }
 
 
@@ -135,8 +161,25 @@ namespace Deep_WPF
             currentRect.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             currentRect.VerticalAlignment = System.Windows.VerticalAlignment.Top;
 
-            this.drawGrid.Children.Add(currentRect);
+            drawcanvas.Children.Add(currentRect);
+            Rectlist.Add(currentRect);
         }
 
+
+        private void ListboxAutoScroll(ListBox lb)
+        {
+            lb.Items.MoveCurrentToLast();
+            lb.ScrollIntoView(lb.Items.CurrentItem);
+        }
+
+        private void ResizeWindow(int ImageH)
+        {
+            if(ImageH > drawcanvas.ActualHeight)
+            {
+                Application.Current.MainWindow.Height += ImageH - drawcanvas.ActualHeight;
+            }
+        }
+
+       
     }
 }
