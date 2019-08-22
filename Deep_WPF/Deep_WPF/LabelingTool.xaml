@@ -26,12 +26,9 @@
             
         </Grid>
 
-        <Grid DockPanel.Dock="Left">
-            <Image Margin="5" Grid.Column="0" HorizontalAlignment="Stretch" Stretch="Fill" Name="Im_Image" MouseDown="Im_Image_MouseDown" MouseUp="Im_Image_MouseUp" MouseMove="Im_Image_MouseMove"></Image>
+        <Grid DockPanel.Dock="Top" Name="drawGrid">
+            <Image Margin="5" Grid.Column="0" HorizontalAlignment="Left" Stretch="None" Name="Im_Image" MouseDown="Im_Image_MouseDown" MouseUp="Im_Image_MouseUp" MouseMove="Im_Image_MouseMove"></Image>
             <Canvas Name="canvas1"></Canvas>
-            <!--<Rectangle Grid.ColumnSpan="2" Name="recSelection" Stroke="Red"  Visibility="Collapsed" VerticalAlignment="top" HorizontalAlignment="Left" IsHitTestVisible="False" />-->
         </Grid>
-        
-
     </DockPanel>
 </Window>

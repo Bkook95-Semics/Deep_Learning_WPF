@@ -25,10 +25,14 @@ namespace Deep_WPF
     public partial class LabelingTool : System.Windows.Window
     {
         string folderPath;
+        System.Windows.Point prePosition;
+        Rectangle currentRect;
 
         public LabelingTool()
         {
             InitializeComponent();
+            WindowStyle = WindowStyle.ToolWindow;
+            //ResizeMode = ResizeMode.NoResize;
         }
 
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
@@ -38,15 +42,15 @@ namespace Deep_WPF
             folderDlg.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
             Winforms.DialogResult result = folderDlg.ShowDialog();
 
-            if(result == Winforms.DialogResult.OK)
+            if (result == Winforms.DialogResult.OK)
             {
                 lb_filelist.Items.Clear();
                 tb_InputDir.Text = folderPath = folderDlg.SelectedPath;
                 string[] filePaths = Directory.GetFiles(folderDlg.SelectedPath, "*.jpg");
-                foreach(var name in filePaths)
+                foreach (var name in filePaths)
                 {
                     string[] split = name.Split('\\');
-                    lb_filelist.Items.Add(split[split.Length-1]);
+                    lb_filelist.Items.Add(split[split.Length - 1]);
                 }
             }
 
@@ -54,62 +58,85 @@ namespace Deep_WPF
 
         private void lb_filelist_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var bigImageMat = new Mat(folderPath + "\\" + lb_filelist.SelectedItem.ToString());
-            Im_Image.Source = bigImageMat.ToWriteableBitmap();
+            var ImageMat = new Mat(folderPath + "\\" + lb_filelist.SelectedItem.ToString());
+            int ImageW = ImageMat.Width;
+            int ImageH = ImageMat.Height;
+            Im_Image.Width = ImageW;
+            Im_Image.Height = ImageH;
+            Im_Image.Source = ImageMat.ToWriteableBitmap();
         }
-
-
-        Boolean isDragging = false;
-        System.Windows.Point ptStart;
-        Rectangle rectangle;
-        private void Im_Image_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if(isDragging == false)
-            {
-                ptStart = e.GetPosition(Im_Image);
-                isDragging = true;
-            }
-        }
-
+        
         private void Im_Image_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if(isDragging)
+            this.Im_Image.ReleaseMouseCapture();
+            SetRectangleProperty();
+            currentRect = null;
+        }
+
+
+        private void Im_Image_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            prePosition = e.GetPosition(this.drawGrid);
+            this.Im_Image.CaptureMouse();
+            if (currentRect == null)
             {
-                isDragging = false;
-                
+                CreteRectangle();
             }
         }
+
 
         private void Im_Image_MouseMove(object sender, MouseEventArgs e)
         {
-            if (isDragging)
+            System.Windows.Point currnetPosition = e.GetPosition(this.drawGrid);
+            //tb_InputDir.Text = string.Format("마우스 좌표 : [{0},{1}]", currnetPosition.X, currnetPosition.Y);
+
+            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
             {
-                //if (recSelection.Visibility != Visibility.Visible)
-                //{
-                //    recSelection.Visibility = Visibility.Visible;
-                //}
+                if (currentRect != null)
+                {
+                    double left = prePosition.X;
+                    double top = prePosition.Y;
 
-                //double x = e.GetPosition(Im_Image).X;
-                //double y = e.GetPosition(Im_Image).Y;
-
-                //recSelection.Margin = new Thickness(ptStart.X + 5, ptStart.Y + 5, ptStart.Y + 5, ptStart.X + 5);
-                //recSelection.Width = Abs(ptStart.X - x);
-                //recSelection.Height = Abs(ptStart.Y - y);
-
-                double x = e.GetPosition(Im_Image).X;
-                double y = e.GetPosition(Im_Image).Y;
-                rectangle = new Rectangle();
-                rectangle.Margin = new Thickness(ptStart.X + 5, ptStart.Y + 5, ptStart.Y + 5, ptStart.X + 5);
-                rectangle.Width = Abs(ptStart.X - x);
-                rectangle.Height = Abs(ptStart.Y - y);
-                rectangle.Stroke = Brushes.Blue; //테두리 색 설정
-                this.canvas1.Children.Add(rectangle);
+                    if (prePosition.X > currnetPosition.X)
+                    {
+                        left = currnetPosition.X;
+                    }
+                    if (prePosition.Y > currnetPosition.Y)
+                    {
+                        top = currnetPosition.Y;
+                    }
+                    currentRect.Margin = new Thickness(left, top, 0, 0);
+                    currentRect.Width = Math.Abs(prePosition.X - currnetPosition.X);
+                    currentRect.Height = Math.Abs(prePosition.Y - currnetPosition.Y);
+                }
             }
         }
 
-        public static double Abs(double number)
+
+        private void SetRectangleProperty()
         {
-            return (number > 0) ? number : -number; 
+            currentRect.Opacity = 1;
+            //currentRect.Fill = new SolidColorBrush(Colors.LightYellow);
+            currentRect.StrokeDashArray = new DoubleCollection();
         }
+
+        private void CreteRectangle()
+        {
+            currentRect = new Rectangle();
+            currentRect.Stroke = new SolidColorBrush(Colors.DarkGreen);
+            currentRect.StrokeThickness = 2;
+            currentRect.Opacity = 0.7;
+
+            DoubleCollection dashSize = new DoubleCollection();
+            dashSize.Add(1);
+            dashSize.Add(1);
+            currentRect.StrokeDashArray = dashSize;
+
+            currentRect.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            currentRect.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+            this.drawGrid.Children.Add(currentRect);
+        }
+
     }
 }
