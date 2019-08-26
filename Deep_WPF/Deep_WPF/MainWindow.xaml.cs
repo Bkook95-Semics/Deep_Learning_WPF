@@ -27,19 +27,19 @@ namespace Deep_WPF
 
         private void btn_labeling_Click(object sender, RoutedEventArgs e)
         {
-            Window Labeling = new Labeling();
+            Labeling Labeling = new Labeling();
             Labeling.Show();
         }
 
         private void btn_train_Click(object sender, RoutedEventArgs e)
         {
-            Window Test = new Test();
+            Test Test = new Test();
             Test.Show();
         }
 
         private void btn_test_Click(object sender, RoutedEventArgs e)
         {
-            Window Train = new Train();
+            Train Train = new Train();
             Train.Show();
         }
     }
