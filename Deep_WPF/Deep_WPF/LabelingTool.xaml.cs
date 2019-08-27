@@ -24,7 +24,12 @@ namespace Deep_WPF
     /// </summary>
     public partial class LabelingTool : System.Windows.Window
     {
+
+        #region 변수들
+
         string folderPath;
+        bool isdraw = false;
+        bool move = false;
         System.Windows.Point prePosition;
         Rectangle currentRect;
 
@@ -33,7 +38,12 @@ namespace Deep_WPF
         List<Rectangle> Rectlist = new List<Rectangle>();
         List<string> filelist = new List<string>();
         List<string> classlist = new List<string>();
+        
 
+        #endregion
+
+
+        #region init
 
         public LabelingTool()
         {
@@ -52,6 +62,213 @@ namespace Deep_WPF
             //btn_InputCls_new.Visibility = Visibility.Hidden;
             //btn_InputCls.Visibility = Visibility.Hidden;
         }
+
+        #endregion
+
+
+        #region 이벤트
+
+        private void SelectClass_ClassEvent(string Class)
+        {
+            if (Class == "")
+            {
+                Spointlist.Remove(Spointlist.Last());
+                Epointlist.Remove(Epointlist.Last());
+                drawcanvas.Children.Remove(Rectlist.Last());
+                Rectlist.Remove(Rectlist.Last());
+            }
+            else
+            {
+                lv_rectlist.Items.Add(new RectListView
+                {
+                    Name = Class,
+                    SPosX = (Convert.ToInt32(Spointlist.Last().X) + Convert.ToInt32(Epointlist.Last().X))/2,
+                    SPosY = (Convert.ToInt32(Spointlist.Last().Y) + Convert.ToInt32(Epointlist.Last().Y)) / 2,
+                    W = Math.Abs((Convert.ToInt32(Epointlist.Last().X) - Convert.ToInt32(Spointlist.Last().X))),
+                    H = Math.Abs((Convert.ToInt32(Epointlist.Last().Y) - Convert.ToInt32(Spointlist.Last().Y)))
+                });
+            }
+        }
+
+        private void SetClass_WritePathEvent(string path)
+        {
+            tb_InputCls.Text = path;
+            Application.Current.MainWindow.Height = 165;
+            btn_Labeling.IsEnabled = true;
+        }
+
+        #endregion
+
+
+        #region 마우스 클릭 관련
+
+        private void drawGrid_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            move = false;
+            Cursor_Arrow();
+            if (isdraw)
+            {
+                System.Windows.Point temp = e.GetPosition(this.Im_Image);
+
+                this.Im_Image.ReleaseMouseCapture();
+                SetRectangleProperty();
+                currentRect = null;
+
+                if (temp.X > Im_Image.Width || temp.X < 0)
+                {
+                    temp.X = temp.X < 0 ? 0 : Im_Image.Width;
+                }
+
+                if (temp.Y > Im_Image.Height || temp.Y < 0)
+                {
+                    temp.Y = temp.Y < 0 ? 0 : Im_Image.Height;
+                }
+
+                Epointlist.Add(temp);
+                GetClass();
+                ListViewAutoScroll(lv_rectlist);
+                isdraw = false;
+                
+            }
+        }
+
+        private void drawGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            prePosition = e.GetPosition(this.Im_Image);
+            this.Im_Image.CaptureMouse();
+            if (currentRect == null)
+            {
+                Spointlist.Add(e.GetPosition(this.Im_Image));
+                CreteRectangle();
+            }
+        }
+
+        private void drawGrid_MouseMove(object sender, MouseEventArgs e)
+        {
+            
+            System.Windows.Point currnetPosition = e.GetPosition(this.Im_Image);
+
+            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
+            {
+                isdraw = true;
+                if (currentRect != null)
+                {
+                    if (currnetPosition.X > Im_Image.Width || currnetPosition.X < 0)
+                    {
+                        currnetPosition.X = currnetPosition.X < 0 ? 0 : Im_Image.Width;
+                    }
+
+                    if (currnetPosition.Y > Im_Image.Height || currnetPosition.Y < 0)
+                    {
+                        currnetPosition.Y = currnetPosition.Y < 0 ? 0 : Im_Image.Height;
+                    }
+
+                    double left = prePosition.X;
+                    double top = prePosition.Y;
+
+                    if (prePosition.X > currnetPosition.X)
+                    {
+                        left = currnetPosition.X;
+                    }
+                    if (prePosition.Y > currnetPosition.Y)
+                    {
+                        top = currnetPosition.Y;
+                    }
+                    currentRect.Margin = new Thickness(left, top, 0, 0);
+                    currentRect.Width = Math.Abs(prePosition.X - currnetPosition.X);
+                    currentRect.Height = Math.Abs(prePosition.Y - currnetPosition.Y);
+                }
+            }
+
+            else
+            {
+                RectListView rl = lv_rectlist.SelectedItem as RectListView;
+                if (rl == null)
+                {
+                    return;
+                }
+
+                if(move || rl.SPosX-rl.W/2 < e.GetPosition(Im_Image).X && rl.SPosX + rl.W / 2 > e.GetPosition(Im_Image).X &&
+                    rl.SPosY - rl.H / 2 < e.GetPosition(Im_Image).Y && rl.SPosY + rl.H / 2 > e.GetPosition(Im_Image).Y)
+                {
+                    Cursor_Hand();
+                    if (e.MouseDevice.MiddleButton == MouseButtonState.Pressed)
+                    {
+                        move = true;
+                        Rectlist[lv_rectlist.SelectedIndex].Margin = new Thickness((rl.SPosX - rl.W / 2) + (e.GetPosition(Im_Image).X - (rl.SPosX - rl.W / 2)) ,
+                            (rl.SPosY - rl.H / 2) + (e.GetPosition(Im_Image).Y - (rl.SPosY - rl.H / 2)), 0, 0);
+                    }
+                }
+                else
+                {
+                    Cursor_Arrow();
+                }
+
+                
+            }
+
+        }
+
+        private void drawGrid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (Rectlist.Count != 0)
+            {
+                drawcanvas.Children.Remove(Rectlist.Last());
+                Rectlist.Remove(Rectlist.Last());
+                lv_rectlist.Items.RemoveAt(lv_rectlist.Items.Count - 1);
+            }
+
+        }
+
+        #endregion
+
+
+        #region 마우스 커서 변경
+
+        private void drawGrid_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Cursor = Cursors.Cross;
+        }
+
+        private void drawGrid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Cursor = Cursors.Arrow;
+        }
+
+        private void Cursor_Hand()
+        {
+            Cursor = Cursors.Hand;
+        }
+
+        private void Cursor_Arrow()
+        {
+            Cursor = Cursors.Arrow;
+        }
+
+        #endregion
+
+
+        #region 키보드 프레스
+
+        private void tab_Labeling_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (lv_rectlist.SelectedItem != null)
+            {
+                if (e.Key == Key.Delete)
+                {
+                    drawcanvas.Children.Remove(Rectlist[lv_rectlist.SelectedIndex]);
+                    Rectlist.RemoveAt(lv_rectlist.SelectedIndex);
+                    lv_rectlist.Items.RemoveAt(lv_rectlist.SelectedIndex);
+                }
+            }
+
+        }
+        
+
+        #endregion
+
+
+        #region 컨트롤 기능
 
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
         {
@@ -87,7 +304,7 @@ namespace Deep_WPF
 
         private void lb_filelist_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(lb_filelist.Items.Count != 0)
+            if (lb_filelist.Items.Count != 0)
             {
                 var ImageMat = new Mat(filelist[lb_filelist.SelectedIndex]);
                 int ImageW = ImageMat.Width;
@@ -97,87 +314,64 @@ namespace Deep_WPF
                 Im_Image.Source = ImageMat.ToWriteableBitmap();
                 ResizeWindow(ImageH);
             }
-            
-        }
-        
-        private void drawGrid_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.Im_Image.ReleaseMouseCapture();
-            SetRectangleProperty();
-            currentRect = null;
-            GetClass();
-            Epointlist.Add(e.GetPosition(this.Im_Image));
-            lb_rectlist.Items.Add(string.Format("{0},{1}", Convert.ToInt32(Spointlist.Last().X), Convert.ToInt32(Epointlist.Last().Y)));
-            ListboxAutoScroll(lb_rectlist);
-        }
-
-        private void GetClass()
-        {
-            SelectClass SelectClass = new SelectClass();
-            SelectClass.CheckboxInit(classlist);
-            SelectClass.ClassEvent += SelectClass_ClassEvent;
-            SelectClass.ShowDialog();
-        }
-
-        private void SelectClass_ClassEvent(string Class)
-        {
 
         }
 
-        private void drawGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        private void btn_InputCls_Click(object sender, RoutedEventArgs e)
         {
-            prePosition = e.GetPosition(this.Im_Image);
-            this.Im_Image.CaptureMouse();
-            if (currentRect == null)
+            Microsoft.Win32.OpenFileDialog fileDlg = new Microsoft.Win32.OpenFileDialog();
+            fileDlg.DefaultExt = ".txt";
+            fileDlg.Filter = "텍스트 파일 (.txt)|*.txt";
+            Nullable<bool> result = fileDlg.ShowDialog();
+
+            if (result == true)
             {
-                Spointlist.Add(e.GetPosition(this.Im_Image));
-                CreteRectangle();
-            }
-        }
-        
-        private void drawGrid_MouseMove(object sender, MouseEventArgs e)
-        {
-            System.Windows.Point currnetPosition = e.GetPosition(this.Im_Image);            
-            
-            if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
-            {
-                if (currentRect != null)
-                {
-                    double left = prePosition.X;
-                    double top = prePosition.Y;
-
-                    if (prePosition.X > currnetPosition.X)
-                    {
-                        left = currnetPosition.X;
-                    }
-                    if (prePosition.Y > currnetPosition.Y)
-                    {
-                        top = currnetPosition.Y;
-                    }
-                    currentRect.Margin = new Thickness(left, top, 0, 0);
-                    currentRect.Width = Math.Abs(prePosition.X - currnetPosition.X);
-                    currentRect.Height = Math.Abs(prePosition.Y - currnetPosition.Y);
-                }
+                tb_InputCls.Text = fileDlg.FileName;
+                Application.Current.MainWindow.Height = 165;
+                btn_Labeling.IsEnabled = true;
             }
         }
 
-        private void drawGrid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void btn_InputCls_new_Click(object sender, RoutedEventArgs e)
         {
-            if(Rectlist.Count != 0)
+            SetClass SetClass = new SetClass();
+            SetClass.WritePathEvent += SetClass_WritePathEvent;
+            SetClass.ShowDialog();
+        }
+
+        private void btn_Labeling_Click(object sender, RoutedEventArgs e)
+        {
+            tab_Labeling.Visibility = Visibility.Visible;
+
+            Application.Current.MainWindow.MinWidth = 1000;
+            Application.Current.MainWindow.Height = 500;
+            tab_Setting.IsEnabled = false;
+            tab_Labeling.Focus();
+            Load_Classes();
+        }
+
+        private void lv_rectlist_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RectListView rl = ((ListView)sender).SelectedItem as RectListView;
+
+            if (rl == null)
             {
-                drawcanvas.Children.Remove(Rectlist.Last());
-                Rectlist.Remove(Rectlist.Last());
-                lb_rectlist.Items.RemoveAt(lb_rectlist.Items.Count - 1);
+                return;
             }
-            
+
+            foreach (var rect in Rectlist)
+            {
+                rect.Stroke = new SolidColorBrush(Colors.DarkGreen);
+            }
+
+            Rectlist[lv_rectlist.SelectedIndex].Stroke = new SolidColorBrush(Colors.Aqua);
+
         }
 
+        #endregion
 
-        private void SetRectangleProperty()
-        {
-            currentRect.Opacity = 1;
-            currentRect.StrokeDashArray = new DoubleCollection();
-        }
+
+        #region 사각형 그리기
 
         private void CreteRectangle()
         {
@@ -198,79 +392,54 @@ namespace Deep_WPF
             Rectlist.Add(currentRect);
         }
 
-
-        private void ListboxAutoScroll(ListBox lb)
+        private void SetRectangleProperty()
         {
-            lb.Items.MoveCurrentToLast();
-            lb.ScrollIntoView(lb.Items.CurrentItem);
+            currentRect.Opacity = 1;
+            currentRect.StrokeDashArray = new DoubleCollection();
+        }
+
+        #endregion
+
+
+        #region 기타 유틸리티 함수
+
+        private void GetClass()
+        {
+            SelectClass SelectClass = new SelectClass();
+            SelectClass.CheckboxInit(classlist);
+            SelectClass.ClassEvent += SelectClass_ClassEvent;
+            SelectClass.Owner = Application.Current.MainWindow;
+            SelectClass.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SelectClass.ShowDialog();
+        }
+
+        private void ListViewAutoScroll(ListView lv)
+        {
+            lv.Items.MoveCurrentToLast();
+            lv.ScrollIntoView(lv.Items.CurrentItem);
+            lv.SelectedIndex = lv.Items.Count-1;
         }
 
         private void ResizeWindow(int ImageH)
         {
-            if(ImageH > drawcanvas.ActualHeight)
+            if (ImageH > drawcanvas.ActualHeight)
             {
                 Application.Current.MainWindow.Height += ImageH - drawcanvas.ActualHeight;
             }
-        }
-
-        private void drawGrid_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Cursor = Cursors.Cross;
-        }
-
-        private void drawGrid_MouseLeave(object sender, MouseEventArgs e)
-        {
-            Cursor = Cursors.Arrow;
-        }
-
-        private void btn_InputCls_Click(object sender, RoutedEventArgs e)
-        {
-            Microsoft.Win32.OpenFileDialog fileDlg = new Microsoft.Win32.OpenFileDialog();
-            fileDlg.DefaultExt = ".txt";
-            fileDlg.Filter = "텍스트 파일 (.txt)|*.txt";
-            Nullable<bool> result = fileDlg.ShowDialog();
-            
-            if (result == true)
-            {
-                tb_InputCls.Text = fileDlg.FileName;
-                Application.Current.MainWindow.Height = 165;
-                btn_Labeling.IsEnabled = true;
-            }
-        }
-
-        private void btn_InputCls_new_Click(object sender, RoutedEventArgs e)
-        {
-            SetClass SetClass = new SetClass();
-            SetClass.WritePathEvent += SetClass_WritePathEvent;
-            SetClass.ShowDialog();            
-        }
-
-        private void SetClass_WritePathEvent(string path)
-        {
-            tb_InputCls.Text = path;
-            Application.Current.MainWindow.Height = 165;
-            btn_Labeling.IsEnabled = true;
-        }
-
-        private void btn_Labeling_Click(object sender, RoutedEventArgs e)
-        {
-            tab_Labeling.Visibility = Visibility.Visible;
-
-            Application.Current.MainWindow.MinWidth = 1000;
-            Application.Current.MainWindow.Height = 500;
-            tab_Setting.IsEnabled = false;
-            tab_Labeling.Focus();
-            Load_Classes();
         }
 
         private void Load_Classes()
         {
             string text = File.ReadAllText(tb_InputCls.Text);
             string[] split = text.Trim().Split('\n');
-            foreach(var name in split)
+            foreach (var name in split)
             {
                 classlist.Add(name);
             }
         }
+
+        #endregion
+
+        
     }
 }

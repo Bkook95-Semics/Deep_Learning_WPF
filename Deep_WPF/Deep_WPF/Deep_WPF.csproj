@@ -79,6 +79,7 @@
     <Compile Include="LabelingTool.xaml.cs">
       <DependentUpon>LabelingTool.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RectListView.cs" />
     <Compile Include="SelectClass.xaml.cs">
       <DependentUpon>SelectClass.xaml</DependentUpon>
     </Compile>

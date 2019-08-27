@@ -5,5 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Deep_WPF"
         mc:Ignorable="d"
-        Title="SelectClass" Height="300" Width="300" Name="SelectWindow">
+        Title="SelectClass" Height="250" Width="250" Name="SelectWindow">
+    <Grid KeyDown="Grid_KeyDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <ListBox Grid.Row="0" Grid.ColumnSpan="2" Margin="5" Name="lb_classes"></ListBox>
+        <Button Grid.Row="1" Grid.Column="0" Margin="5" Name="btn_ok" Click="btn_ok_Click">확인</Button>
+        <Button Grid.Row="2"  Grid.Column="1" Margin="5" Name="btn_x"  Click="btn_x_Click">취소</Button>
+    </Grid>
+
 </Window>

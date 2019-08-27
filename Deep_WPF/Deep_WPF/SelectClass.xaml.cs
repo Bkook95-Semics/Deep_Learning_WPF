@@ -21,55 +21,42 @@ namespace Deep_WPF
     {
         public delegate void ClassEventHandler(string Class);
         public event ClassEventHandler ClassEvent;
-
-        string name = null;
+        
 
         public SelectClass()
         {
             InitializeComponent();
-            this.Focus();
-        }
-
-
-
-        public void CheckboxInit(List<string> classlist)
-        {
-            var DockPanel = new DockPanel {};            
-            foreach (var Class in classlist)
-            {
-                RadioButton RadioButton = new RadioButton();
-                RadioButton.Content = Class;
-                RadioButton.Checked += RadioButton_Checked;
-                RadioButton.Height = 15;
-                RadioButton.Margin = new Thickness(5);
-                DockPanel.SetDock(RadioButton, Dock.Top);
-                DockPanel.Children.Add(RadioButton);
-            }
-
-            Button Button = new Button();
-            Button.Background = new SolidColorBrush(Colors.LightGreen);
-            Button.Height = 25;
-            Button.Content = "확인";
-            Button.Click += new RoutedEventHandler(btn_OKClick);
-            Button.Margin = new Thickness(5);
-            DockPanel.SetDock(Button, Dock.Top);
-            DockPanel.Children.Add(Button);
-            
-            this.Content = DockPanel;
-        }
-
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-            RadioButton obj = sender as RadioButton;
-            name = obj.Content.ToString();
-        }
-
-        void btn_OKClick(object sender, RoutedEventArgs e)
-        {
-            ClassEvent(name);
-            this.Close();
+            lb_classes.SelectedIndex = 0;
+            btn_ok.Focus();
         }
         
 
+        public void CheckboxInit(List<string> classlist)
+        {
+            foreach (var Class in classlist)
+            {
+                lb_classes.Items.Add(Class.Trim());
+            }
+        }
+        
+        private void btn_ok_Click(object sender, RoutedEventArgs e)
+        {
+            ClassEvent(lb_classes.SelectedItem.ToString());
+            this.Close();
+        }
+
+        private void btn_x_Click(object sender, RoutedEventArgs e)
+        {
+            ClassEvent("");
+            this.Close();
+        }
+
+        private void Grid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                btn_ok_Click(sender, e);
+            }
+        }
     }
 }

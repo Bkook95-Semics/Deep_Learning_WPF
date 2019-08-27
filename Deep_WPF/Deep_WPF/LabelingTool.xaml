@@ -7,8 +7,8 @@
         mc:Ignorable="d"
         Title="LabelingTool" Height="500" Width="1000" MinWidth="1000">
     <TabControl Margin="5">
-        <TabItem Header="셋팅" Name="tab_Setting">
-            <Grid ShowGridLines="false" Name="setting">
+        <TabItem Header="셋팅" Name="tab_Setting" >
+            <Grid ShowGridLines="false" Name="setting" Background="AliceBlue">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -34,7 +34,7 @@
             
         </TabItem>
         
-        <TabItem Header="레이블링" Visibility="Hidden" Name="tab_Labeling">
+        <TabItem Header="레이블링" Visibility="Hidden" Name="tab_Labeling" Keyboard.KeyDown="tab_Labeling_KeyDown">
             <DockPanel Background="AliceBlue">
                 <Grid ShowGridLines="false" DockPanel.Dock="Right">
                     <Grid.RowDefinitions>
@@ -44,14 +44,25 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Margin="5,0,0,-5" HorizontalAlignment="Center">Rect List</TextBlock>
-                    <ListBox Grid.Row="1" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_rectlist"></ListBox>
+                    <!--<ListBox Grid.Row="1" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_rectlist" SelectionChanged="lb_rectlist_SelectionChanged"></ListBox>-->
+                    <ListView Grid.Row="1" Margin="5" HorizontalAlignment="Right" MinWidth="220" MaxWidth="220" Name="lv_rectlist" SelectionChanged="lv_rectlist_SelectionChanged">
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="True">
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=Name}" Header="CLASS" Width="65" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=SPosX}" Header="X" Width="32" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=SPosY}" Header="Y" Width="32" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=W}" Header="W" Width="32" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Path=H}" Header="H" Width="32" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                     <TextBlock Grid.Row="2" Margin="5,0,0,-5" HorizontalAlignment="Center">File List</TextBlock>
-                    <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" MaxWidth="200"></ListBox>
+                    <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="220" MaxWidth="220" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" ></ListBox>
 
                 </Grid>
 
                 <Grid DockPanel.Dock="Top" Name="drawGrid" MouseMove="drawGrid_MouseMove"  MouseLeftButtonDown="drawGrid_MouseDown"
-              MouseLeftButtonUp="drawGrid_MouseUp" MouseRightButtonDown="drawGrid_MouseRightButtonDown" MouseEnter="drawGrid_MouseEnter" MouseLeave="drawGrid_MouseLeave">
+              MouseLeftButtonUp="drawGrid_MouseUp" MouseUp="drawGrid_MouseUp" MouseRightButtonDown="drawGrid_MouseRightButtonDown" MouseEnter="drawGrid_MouseEnter" MouseLeave="drawGrid_MouseLeave">
                     <Canvas Margin="5" Name="drawcanvas">
                         <Image Stretch="Fill" Name="Im_Image" ></Image>
                     </Canvas>
