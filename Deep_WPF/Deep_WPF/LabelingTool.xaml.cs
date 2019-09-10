@@ -15,6 +15,8 @@ using Winforms = System.Windows.Forms;
 using System.IO;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace Deep_WPF
 {
@@ -36,6 +38,7 @@ namespace Deep_WPF
         List<Rectangle> Rectlist = new List<Rectangle>();
         List<string> filelist = new List<string>();
         List<string> classlist = new List<string>();
+        Thread t1;
 
 
         #endregion
@@ -268,6 +271,9 @@ namespace Deep_WPF
         //버튼클릭
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
         {
+            t1 = new Thread(new ThreadStart(CheckSetting));
+            t1.Start();
+
             Winforms.FolderBrowserDialog folderDlg = new Winforms.FolderBrowserDialog();
             folderDlg.Description = "이미지 폴더를 선택하세요.";
             folderDlg.ShowNewFolderButton = false;
@@ -301,7 +307,6 @@ namespace Deep_WPF
             if (result == true)
             {
                 tb_InputCls.Text = fileDlg.FileName;
-                btn_Labeling.IsEnabled = true;
             }
         }
 
@@ -314,6 +319,7 @@ namespace Deep_WPF
 
         private void btn_Labeling_Click(object sender, RoutedEventArgs e)
         {
+            t1.Abort();
             tab_Labeling.Visibility = Visibility.Visible;
             tab_Setting.IsEnabled = false;
             tab_Labeling.Focus();
@@ -521,5 +527,19 @@ namespace Deep_WPF
         }
 
         #endregion
+
+        void CheckSetting()
+        {
+            while(true)
+            {
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
+                {
+                    if (tb_InputDir.Text != "" && tb_InputCls.Text != "")
+                    {
+                        btn_Labeling.IsEnabled = true;
+                    }                        
+                }));
+            }
+        }
     }
 }

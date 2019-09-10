@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Deep_WPF
 {
@@ -22,12 +24,19 @@ namespace Deep_WPF
     public partial class Test : UserControl
     {
         string selectedFileName;
+        Thread t1;
+
+
+
         public Test()
         {
             InitializeComponent();
         }
+
         private void btn_cfg_Click(object sender, RoutedEventArgs e)
         {
+            t1 = new Thread(new ThreadStart(CheckSetting));
+            t1.Start();
             Microsoft.Win32.OpenFileDialog fileDlg = new Microsoft.Win32.OpenFileDialog();
             fileDlg.DefaultExt = ".cfg";
             fileDlg.Filter = "cfg파일 (.cfg)|*.cfg";
@@ -36,6 +45,21 @@ namespace Deep_WPF
             if (result == true)
             {
                 tb_cfg.Text = fileDlg.FileName;
+            }
+        }
+
+        private void CheckSetting()
+        {
+            while (true)
+            {
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
+                {
+                    if (tb_cfg.Text != "" && tb_names.Text != "" && tb_weights.Text != "")
+                    {
+                        tab_Testing.Focus();
+                        t1.Abort();
+                    }
+                }));
             }
         }
 
