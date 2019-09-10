@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BeautySolutions.View.ViewModel;
+using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,24 +25,44 @@ namespace Deep_WPF
         public MainWindow()
         {
             InitializeComponent();
+
+            var menuLabeling = new List<SubItem>();
+            menuLabeling.Add(new SubItem("Using Tool", new LabelingTool()));
+            menuLabeling.Add(new SubItem("Using OPENCV", new OPCV()));
+            var item0 = new ItemMenu("Labeling", menuLabeling, PackIconKind.Comment);
+
+            var menuTrain = new List<SubItem>();
+            menuTrain.Add(new SubItem("Train", new OPCV()));
+            var item1 = new ItemMenu("Train", menuTrain, PackIconKind.Schedule);
+
+            var menuTest = new List<SubItem>();
+            menuTest.Add(new SubItem("Test", new Test()));
+            var item2 = new ItemMenu("Test", menuTest, PackIconKind.FileReport);
+            
+            Menu.Children.Add(new UserControlMenuItem(item0, this));
+            Menu.Children.Add(new UserControlMenuItem(item1, this));
+            Menu.Children.Add(new UserControlMenuItem(item2, this));
         }
 
-        private void btn_labeling_Click(object sender, RoutedEventArgs e)
+        internal void SwitchScreen(object sender)
         {
-            Labeling Labeling = new Labeling();
-            Labeling.Show();
+            var screen = ((UserControl)sender);
+
+            if (screen != null)
+            {
+                StackPanelMain.Children.Clear();
+                StackPanelMain.Children.Add(screen);
+            }
         }
 
-        private void btn_train_Click(object sender, RoutedEventArgs e)
+        private void ButtonFechar_Click(object sender, RoutedEventArgs e)
         {
-            Test Test = new Test();
-            Test.Show();
+            Application.Current.Shutdown();
         }
 
-        private void btn_test_Click(object sender, RoutedEventArgs e)
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Train Train = new Train();
-            Train.Show();
+            DragMove();
         }
     }
 }

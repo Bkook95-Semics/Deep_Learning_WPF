@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Winforms = System.Windows.Forms;
 using System.IO;
-
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 
@@ -22,9 +21,8 @@ namespace Deep_WPF
     /// <summary>
     /// LabelingTool.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class LabelingTool : System.Windows.Window
+    public partial class LabelingTool : UserControl
     {
-
         #region 변수들
 
         string folderPath;
@@ -38,7 +36,7 @@ namespace Deep_WPF
         List<Rectangle> Rectlist = new List<Rectangle>();
         List<string> filelist = new List<string>();
         List<string> classlist = new List<string>();
-        
+
 
         #endregion
 
@@ -48,21 +46,8 @@ namespace Deep_WPF
         public LabelingTool()
         {
             InitializeComponent();
-            SettingInit();
-            WindowStyle = WindowStyle.ToolWindow;
         }
-
-        private void SettingInit()
-        {
-            Application.Current.MainWindow.MinWidth = 50;
-            Application.Current.MainWindow.Width = 500;
-            Application.Current.MainWindow.Height = 105;
-            //tx_class.Visibility = Visibility.Hidden;
-            //tb_InputCls.Visibility = Visibility.Hidden;
-            //btn_InputCls_new.Visibility = Visibility.Hidden;
-            //btn_InputCls.Visibility = Visibility.Hidden;
-        }
-
+        
         #endregion
 
 
@@ -82,7 +67,7 @@ namespace Deep_WPF
                 lv_rectlist.Items.Add(new RectListView
                 {
                     Name = Class,
-                    SPosX = (Convert.ToInt32(Spointlist.Last().X) + Convert.ToInt32(Epointlist.Last().X))/2,
+                    SPosX = (Convert.ToInt32(Spointlist.Last().X) + Convert.ToInt32(Epointlist.Last().X)) / 2,
                     SPosY = (Convert.ToInt32(Spointlist.Last().Y) + Convert.ToInt32(Epointlist.Last().Y)) / 2,
                     W = Math.Abs((Convert.ToInt32(Epointlist.Last().X) - Convert.ToInt32(Spointlist.Last().X))),
                     H = Math.Abs((Convert.ToInt32(Epointlist.Last().Y) - Convert.ToInt32(Spointlist.Last().Y)))
@@ -104,7 +89,7 @@ namespace Deep_WPF
 
         private void drawGrid_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            move = false;
+
             Cursor_Arrow();
             if (isdraw)
             {
@@ -128,7 +113,12 @@ namespace Deep_WPF
                 GetClass();
                 ListViewAutoScroll(lv_rectlist);
                 isdraw = false;
-                
+            }
+
+            if (move)
+            {
+                move = false;
+
             }
         }
 
@@ -145,7 +135,7 @@ namespace Deep_WPF
 
         private void drawGrid_MouseMove(object sender, MouseEventArgs e)
         {
-            
+
             System.Windows.Point currnetPosition = e.GetPosition(this.Im_Image);
 
             if (e.MouseDevice.LeftButton == MouseButtonState.Pressed)
@@ -188,23 +178,23 @@ namespace Deep_WPF
                     return;
                 }
 
-                if(move || rl.SPosX-rl.W/2 < e.GetPosition(Im_Image).X && rl.SPosX + rl.W / 2 > e.GetPosition(Im_Image).X &&
+                if (move || rl.SPosX - rl.W / 2 < e.GetPosition(Im_Image).X && rl.SPosX + rl.W / 2 > e.GetPosition(Im_Image).X &&
                     rl.SPosY - rl.H / 2 < e.GetPosition(Im_Image).Y && rl.SPosY + rl.H / 2 > e.GetPosition(Im_Image).Y)
                 {
                     Cursor_Hand();
                     if (e.MouseDevice.MiddleButton == MouseButtonState.Pressed)
                     {
                         move = true;
-                        Rectlist[lv_rectlist.SelectedIndex].Margin = new Thickness((rl.SPosX - rl.W / 2) + (e.GetPosition(Im_Image).X - (rl.SPosX - rl.W / 2)) ,
-                            (rl.SPosY - rl.H / 2) + (e.GetPosition(Im_Image).Y - (rl.SPosY - rl.H / 2)), 0, 0);
+                        Rectlist[lv_rectlist.SelectedIndex].Margin = new Thickness(e.GetPosition(Im_Image).X + (rl.SPosX - rl.W / 2) - rl.SPosX, e.GetPosition(Im_Image).Y + (rl.SPosY - rl.H / 2) - rl.SPosY, rl.W, rl.H);
+
                     }
                 }
                 else
                 {
-                    Cursor_Arrow();
+                    Cursor_Cross();
                 }
 
-                
+
             }
 
         }
@@ -227,12 +217,12 @@ namespace Deep_WPF
 
         private void drawGrid_MouseEnter(object sender, MouseEventArgs e)
         {
-            Cursor = Cursors.Cross;
+            Cursor_Cross();
         }
 
         private void drawGrid_MouseLeave(object sender, MouseEventArgs e)
         {
-            Cursor = Cursors.Arrow;
+            Cursor_Arrow();
         }
 
         private void Cursor_Hand()
@@ -243,6 +233,11 @@ namespace Deep_WPF
         private void Cursor_Arrow()
         {
             Cursor = Cursors.Arrow;
+        }
+
+        private void Cursor_Cross()
+        {
+            Cursor = Cursors.Cross;
         }
 
         #endregion
@@ -263,13 +258,14 @@ namespace Deep_WPF
             }
 
         }
-        
+
 
         #endregion
 
 
         #region 컨트롤 기능
-
+        
+        //버튼클릭
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
         {
             Winforms.FolderBrowserDialog folderDlg = new Winforms.FolderBrowserDialog();
@@ -291,28 +287,6 @@ namespace Deep_WPF
                     lb_filelist.Items.Add(split[split.Length - 1]);
                     filelist.Add(name);
                 }
-
-                //tx_class.Visibility = Visibility.Visible;
-                //tb_InputCls.Visibility = Visibility.Visible;
-                //btn_InputCls_new.Visibility = Visibility.Visible;
-                //btn_InputCls.Visibility = Visibility.Visible;
-                Application.Current.MainWindow.Height = 135;
-
-            }
-
-        }
-
-        private void lb_filelist_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (lb_filelist.Items.Count != 0)
-            {
-                var ImageMat = new Mat(filelist[lb_filelist.SelectedIndex]);
-                int ImageW = ImageMat.Width;
-                int ImageH = ImageMat.Height;
-                Im_Image.Width = ImageW;
-                Im_Image.Height = ImageH;
-                Im_Image.Source = ImageMat.ToWriteableBitmap();
-                ResizeWindow(ImageH);
             }
 
         }
@@ -327,7 +301,6 @@ namespace Deep_WPF
             if (result == true)
             {
                 tb_InputCls.Text = fileDlg.FileName;
-                Application.Current.MainWindow.Height = 165;
                 btn_Labeling.IsEnabled = true;
             }
         }
@@ -342,12 +315,55 @@ namespace Deep_WPF
         private void btn_Labeling_Click(object sender, RoutedEventArgs e)
         {
             tab_Labeling.Visibility = Visibility.Visible;
-
-            Application.Current.MainWindow.MinWidth = 1000;
-            Application.Current.MainWindow.Height = 500;
             tab_Setting.IsEnabled = false;
             tab_Labeling.Focus();
             Load_Classes();
+        }
+
+        private void btn_Prev_Click(object sender, RoutedEventArgs e)
+        {
+            if (lb_filelist.SelectedIndex != 0)
+            {
+                if (CheckLabeling(lb_filelist.SelectedItem.ToString().Split('.')[0]) && lv_rectlist.Items.Count > 0)
+                {
+                    lv_rectlist.Items.Clear();
+                    Clear_draw();
+                    Rectlist.Clear();
+                }
+                else
+                    SaveLabeling();
+                lb_filelist.SelectedIndex -= 1;
+            }
+
+
+        }
+
+        private void btn_Next_Click(object sender, RoutedEventArgs e)
+        {
+            if (lv_rectlist.Items.Count > 0)
+            {
+                SaveLabeling();
+                if (CheckLabeling(lb_filelist.SelectedItem.ToString().Split('.')[0]))
+                {
+                    lv_rectlist.Items.Clear();
+                    Clear_draw();
+                    Rectlist.Clear();
+                }
+
+            }
+            lb_filelist.SelectedIndex += 1;
+        }
+
+
+        //인덱스 변경
+        private void lb_filelist_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lb_filelist.Items.Count != 0 && lb_filelist.SelectedIndex > -1)
+            {
+                SaveLabeling();
+                Print_Image();
+            }
+
         }
 
         private void lv_rectlist_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -367,7 +383,6 @@ namespace Deep_WPF
             Rectlist[lv_rectlist.SelectedIndex].Stroke = new SolidColorBrush(Colors.Aqua);
 
         }
-
         #endregion
 
 
@@ -417,14 +432,20 @@ namespace Deep_WPF
         {
             lv.Items.MoveCurrentToLast();
             lv.ScrollIntoView(lv.Items.CurrentItem);
-            lv.SelectedIndex = lv.Items.Count-1;
+            lv.SelectedIndex = lv.Items.Count - 1;
         }
 
-        private void ResizeWindow(int ImageH)
+        private void ResizeWindow(int ImageW, int ImageH)
         {
             if (ImageH > drawcanvas.ActualHeight)
             {
                 Application.Current.MainWindow.Height += ImageH - drawcanvas.ActualHeight;
+                drawcanvas.Height = ImageH;                
+            }
+            if (ImageW > drawcanvas.ActualWidth)
+            {
+                Application.Current.MainWindow.Width += ImageW - drawcanvas.ActualWidth;
+                drawcanvas.Width = ImageW;                
             }
         }
 
@@ -434,12 +455,71 @@ namespace Deep_WPF
             string[] split = text.Trim().Split('\n');
             foreach (var name in split)
             {
-                classlist.Add(name);
+                classlist.Add(name.Trim());
+            }
+
+        }
+
+        private void SaveLabeling()
+        {
+            if (lv_rectlist.Items.Count > 0)
+            {
+                string labeling_Data = null;
+                string[] Name = null;
+                foreach (var data in lv_rectlist.Items)
+                {
+                    var temp = data as RectListView;
+                    int index = classlist.FindIndex(r => r == temp.Name);
+                    Name = lb_filelist.SelectedItem.ToString().Split('.');
+
+
+                    labeling_Data += index + " " + DoubletoString(temp.SPosX / Im_Image.Width) + " " +
+                       DoubletoString(temp.SPosY / Im_Image.Height) + " " + DoubletoString(temp.W / Im_Image.Width) + " " + DoubletoString(temp.H / Im_Image.Height) + "\r";
+
+                }
+                File.WriteAllText(tb_InputDir.Text + "\\" + Name[0] + ".txt", labeling_Data);
+
+            }
+        }
+
+        private int ClasstoNum(string Name)
+        {
+            return classlist.FindIndex(r => r == Name);
+        }
+
+        private string DoubletoString(double value)
+        {
+            return string.Format("{0:0.000000}", value);
+        }
+
+        private bool CheckLabeling(string name)
+        {
+            if (File.Exists(tb_InputDir.Text + "\\" + name + ".txt"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void Print_Image()
+        {
+            var ImageMat = new Mat(filelist[lb_filelist.SelectedIndex]);
+            int ImageW = ImageMat.Width;
+            int ImageH = ImageMat.Height;
+            Im_Image.Width = ImageW;
+            Im_Image.Height = ImageH;
+            Im_Image.Source = ImageMat.ToWriteableBitmap();
+            ResizeWindow(ImageW, ImageH);
+        }
+
+        private void Clear_draw()
+        {
+            foreach (var rect in Rectlist)
+            {
+                drawcanvas.Children.Remove(rect);
             }
         }
 
         #endregion
-
-        
     }
 }

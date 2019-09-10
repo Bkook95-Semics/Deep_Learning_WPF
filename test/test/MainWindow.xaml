@@ -1,0 +1,36 @@
+﻿<Window x:Class="test.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:test"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.Row="0" Grid.ColumnSpan="2" Name="image"></Image>
+        <Button Grid.Row="1" Grid.Column="0" Name="open" Click="open_Click">열기</Button>
+        <Button Grid.Row="1" Grid.Column="1" Name="det" Click="det_Click">디텍션</Button>
+        <ListView Grid.Row="2" Grid.ColumnSpan="2" Name="view" SelectionChanged="view_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Path=Type}"/>
+                    <GridViewColumn Header="Confidence" DisplayMemberBinding="{Binding Path=Confidence}"/>
+                    <GridViewColumn Header="X" DisplayMemberBinding="{Binding Path=X}"/>
+                    <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Path=Y}"/>
+                    <GridViewColumn Header="Width" DisplayMemberBinding="{Binding Path=Width}"/>
+                    <GridViewColumn Header="Height" DisplayMemberBinding="{Binding Path=Height}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Window>

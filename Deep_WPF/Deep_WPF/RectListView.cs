@@ -13,6 +13,7 @@ namespace Deep_WPF
         public int SPosY { get; set; }
         public int W { get; set; }
         public int H { get; set; }
+
         
     }
 
