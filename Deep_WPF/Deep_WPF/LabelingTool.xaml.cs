@@ -38,7 +38,7 @@ namespace Deep_WPF
         List<Rectangle> Rectlist = new List<Rectangle>();
         List<string> filelist = new List<string>();
         List<string> classlist = new List<string>();
-        Thread t1;
+        Thread t1 = null;
 
 
         #endregion
@@ -271,8 +271,11 @@ namespace Deep_WPF
         //버튼클릭
         private void btn_InputDir_Click(object sender, RoutedEventArgs e)
         {
-            t1 = new Thread(new ThreadStart(CheckSetting));
-            t1.Start();
+            if(t1 == null)
+            {
+                t1 = new Thread(CheckSetting);
+                t1.Start();
+            }
 
             Winforms.FolderBrowserDialog folderDlg = new Winforms.FolderBrowserDialog();
             folderDlg.Description = "이미지 폴더를 선택하세요.";
@@ -320,9 +323,8 @@ namespace Deep_WPF
         private void btn_Labeling_Click(object sender, RoutedEventArgs e)
         {
             t1.Abort();
-            tab_Labeling.Visibility = Visibility.Visible;
-            tab_Setting.IsEnabled = false;
-            tab_Labeling.Focus();
+            bd_Setting.Visibility = Visibility.Collapsed;
+            bd_Labeling.Visibility = Visibility.Visible;
             Load_Classes();
         }
 

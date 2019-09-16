@@ -7,80 +7,92 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <TabControl Margin="5">
-        <TabItem Header="SETTING" Name="tab_Setting" Foreground="Gray" >
-            <Grid ShowGridLines="false" Name="setting" Background="White">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="auto"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                </Grid.RowDefinitions>
-
-                <TextBox  Grid.Row="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="  IMAGE FILE" Grid.Column="0" Grid.ColumnSpan="2" Name="tb_InputDir" HorizontalAlignment="Stretch" IsEnabled="False"></TextBox>
-                <Button Margin="5" Grid.Row="0" Grid.Column="2" Name="btn_InputDir" Click="btn_InputDir_Click" Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"  
-                        Background="{x:Null}" BorderBrush="{x:Null}">
-                    <materialDesign:PackIcon Kind="FolderOpen" Width="30" Height="30" Foreground="Gray"/>
-                </Button>
 
 
-                <TextBox Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="tb_InputCls" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint=" CLASS FILE" HorizontalAlignment="Stretch" IsEnabled="False"></TextBox>
-                <Button Margin="5" Grid.Row="1" Grid.Column="1" Width="110" HorizontalAlignment="Right" Name="btn_InputCls_new" Click="btn_InputCls_new_Click" Background="#FFF37121"  BorderBrush="Gray">NEW FILE</Button>
-                <Button Margin="5" Grid.Row="1" Grid.Column="2"  Name="btn_InputCls" Click="btn_InputCls_Click" Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"  
-                        Background="{x:Null}" BorderBrush="{x:Null}">
-                    <materialDesign:PackIcon Kind="FolderOpen" Width="30" Height="30" Foreground="Gray"/>
-                </Button>
-
-                <Button  Margin="5" Name="btn_Labeling"  Grid.Row="2" Grid.ColumnSpan="3" IsEnabled="False" Width="250" Click="btn_Labeling_Click" Background="#FFF37121"  BorderBrush="Gray">레이블링 시작</Button>
-
-            </Grid>
-
-        </TabItem>
-
-        <TabItem Header="LABELING TOOL" Name="tab_Labeling" Keyboard.KeyDown="tab_Labeling_KeyDown">
-            <DockPanel Background="White">
-                <Grid ShowGridLines="false" DockPanel.Dock="Right">
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Border BorderBrush="DarkGray" BorderThickness="1" CornerRadius="1" Name="bd_Setting" Margin="5">
+                <Grid Margin="5" Name="setting" DockPanel.Dock="Top">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="5,0,0,-5" HorizontalAlignment="Center" Grid.ColumnSpan="2">Rect List</TextBlock>
-                    <ListView Grid.Row="1" Margin="5,-10,5,5" HorizontalAlignment="Right" MinWidth="220" MinHeight="150" MaxWidth="300" MaxHeight="150" Name="lv_rectlist" SelectionChanged="lv_rectlist_SelectionChanged" Grid.ColumnSpan="2">
-                        <ListView.View>
-                            <GridView AllowsColumnReorder="True">
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=Name}" Header="CLASS" Width="70" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=SPosX}" Header="X" Width="40" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=SPosY}" Header="Y" Width="40" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=W}" Header="W" Width="45" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=H}" Header="H" Width="45" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <TextBlock Grid.Row="2" Margin="5,0,0,-5" HorizontalAlignment="Center" Grid.ColumnSpan="2">File List</TextBlock>
-                    <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="275" MaxWidth="275" MinHeight="200" MaxHeight="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" Grid.ColumnSpan="2" ></ListBox>
-                    <!--버튼수정해야함-->
-                    <Button Grid.Row="4" Grid.Column="0" Margin="5" Name="btn_Prev" Click="btn_Prev_Click">이전</Button>
-                    <Button Grid.Row="4" Grid.Column="1" Margin="5" Name="btn_Next" Click="btn_Next_Click">다음</Button>
-                </Grid>
 
-                <Grid DockPanel.Dock="Top" Name="drawGrid" MouseMove="drawGrid_MouseMove"  MouseLeftButtonDown="drawGrid_MouseDown"
-              MouseLeftButtonUp="drawGrid_MouseUp" MouseUp="drawGrid_MouseUp" MouseRightButtonDown="drawGrid_MouseRightButtonDown" MouseEnter="drawGrid_MouseEnter" MouseLeave="drawGrid_MouseLeave">
-                    <Canvas Margin="5" Name="drawcanvas">
-                        <Image Stretch="Fill" Name="Im_Image"></Image>
-                    </Canvas>
+                    <TextBox  Grid.Row="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="  IMAGE FILE" Grid.Column="0" Grid.ColumnSpan="2" Name="tb_InputDir" HorizontalAlignment="Stretch" IsEnabled="False" Foreground="Black"></TextBox>
+                    <Button Margin="5" Grid.Row="0" Grid.Column="2" Name="btn_InputDir" Click="btn_InputDir_Click" Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"  
+                        Background="{x:Null}" BorderBrush="{x:Null}">
+                        <materialDesign:PackIcon Kind="FolderOpen" Width="30" Height="30" Foreground="Gray"/>
+                    </Button>
+
+
+                    <TextBox Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="tb_InputCls" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint=" CLASS FILE" HorizontalAlignment="Stretch" IsEnabled="False" Foreground="Black"></TextBox>
+                    <Button Margin="5" Grid.Row="1" Grid.Column="1" Width="110" HorizontalAlignment="Right" Name="btn_InputCls_new" Click="btn_InputCls_new_Click" Background="#FFF37121"  BorderBrush="Gray">NEW FILE</Button>
+                    <Button Margin="5" Grid.Row="1" Grid.Column="2"  Name="btn_InputCls" Click="btn_InputCls_Click" Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"  
+                        Background="{x:Null}" BorderBrush="{x:Null}">
+                        <materialDesign:PackIcon Kind="FolderOpen" Width="30" Height="30" Foreground="Gray"/>
+                    </Button>
+
+                    <Button  Margin="5" Name="btn_Labeling"  Grid.Row="2" Grid.ColumnSpan="3" IsEnabled="False" Width="250" Click="btn_Labeling_Click" Background="#FFF37121"  BorderBrush="Gray">레이블링 시작</Button>
+
                 </Grid>
-            </DockPanel>
-        </TabItem>
-    </TabControl>
+            </Border>
+        </Grid>
+
+        <Grid DockPanel.Dock="Top" Height="550" Keyboard.KeyDown="tab_Labeling_KeyDown">
+            <Border BorderBrush="DarkGray" BorderThickness="1" CornerRadius="1" Name="bd_Labeling" Margin="5" Visibility="Collapsed">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Right">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Margin="5,0,0,-5" HorizontalAlignment="Center" Grid.ColumnSpan="2" Foreground="Black">Rect List</TextBlock>
+                        <Border BorderBrush="#FFC2C2D1" BorderThickness="1" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" CornerRadius="5" Margin="5">
+                            <ListView Margin="5" HorizontalAlignment="Right" MinWidth="220" MinHeight="150" Name="lv_rectlist" 
+                                      SelectionChanged="lv_rectlist_SelectionChanged" VerticalAlignment="Top">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=Name}" Header="CLASS" Width="70" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=SPosX}" Header="X" Width="40" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=SPosY}" Header="Y" Width="40" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=W}" Header="W" Width="45" />
+                                        <GridViewColumn DisplayMemberBinding="{Binding Path=H}" Header="H" Width="45" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="5,0,0,-5" HorizontalAlignment="Center" Grid.ColumnSpan="2" Foreground="Black">File List</TextBlock>
+
+                        <Border BorderBrush="#FFC2C2D1" BorderThickness="1" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" CornerRadius="5" Margin="5">
+                            <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="275" MinHeight="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" Grid.ColumnSpan="2" ></ListBox>
+                        </Border>
+
+                        <Button Grid.Row="4" Grid.Column="1" Margin="5" Name="btn_Prev" Click="btn_Prev_Click">이전</Button>
+                        <Button Grid.Row="4" Grid.Column="2" Margin="5" Name="btn_Next" Click="btn_Next_Click">다음</Button>
+                    </Grid>
+
+                    <Grid Name="drawGrid" MouseMove="drawGrid_MouseMove"  MouseLeftButtonDown="drawGrid_MouseDown"  DockPanel.Dock="Left"
+              MouseLeftButtonUp="drawGrid_MouseUp" MouseUp="drawGrid_MouseUp" MouseRightButtonDown="drawGrid_MouseRightButtonDown" MouseEnter="drawGrid_MouseEnter" MouseLeave="drawGrid_MouseLeave">
+                        <Canvas Margin="5" Name="drawcanvas">
+                            <Image Stretch="Fill" Name="Im_Image"></Image>
+                        </Canvas>
+                    </Grid>
+                </DockPanel>               
+            </Border>
+        </Grid>
+    </DockPanel>
 </UserControl>

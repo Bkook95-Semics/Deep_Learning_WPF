@@ -1,6 +1,7 @@
 ﻿using Alturos.Yolo;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -24,19 +25,24 @@ namespace Deep_WPF
     public partial class Test : UserControl
     {
         string selectedFileName;
-        Thread t1;
-
+        Thread t1 = null;
+        public DetectionSystem DetectionSystem = DetectionSystem.Unknown;
+        YoloWrapper Wrapper;
 
 
         public Test()
         {
-            InitializeComponent();
+            InitializeComponent();            
         }
 
         private void btn_cfg_Click(object sender, RoutedEventArgs e)
         {
-            t1 = new Thread(new ThreadStart(CheckSetting));
-            t1.Start();
+            if(t1 == null)
+            {
+                t1 = new Thread(CheckSetting);
+                t1.Start();
+            }
+            
             Microsoft.Win32.OpenFileDialog fileDlg = new Microsoft.Win32.OpenFileDialog();
             fileDlg.DefaultExt = ".cfg";
             fileDlg.Filter = "cfg파일 (.cfg)|*.cfg";
@@ -56,7 +62,23 @@ namespace Deep_WPF
                 {
                     if (tb_cfg.Text != "" && tb_names.Text != "" && tb_weights.Text != "")
                     {
-                        tab_Testing.Focus();
+                        bd_Setting.Visibility = Visibility.Collapsed;
+                        bd_Testing.Visibility = Visibility.Visible;
+
+                        Wrapper = new YoloWrapper(tb_cfg.Text, tb_weights.Text, tb_names.Text);
+
+                        DetectionSystem = Wrapper.DetectionSystem;
+                        switch (DetectionSystem)
+                        {
+                            case DetectionSystem.CPU:
+                                tb_state.Text = "CPU 환경 : ";
+                                break;
+                            case DetectionSystem.GPU:
+                                tb_state.Text = "GPU 환경 : ";
+                                break;
+                            default:
+                                break;
+                        }
                         t1.Abort();
                     }
                 }));
@@ -123,15 +145,15 @@ namespace Deep_WPF
         {
             view.Items.Clear();
 
-            using (var yoloWrapper = new YoloWrapper(tb_cfg.Text, tb_weights.Text, tb_names.Text))
+            var sw = new Stopwatch();
+            sw.Start();
+            var items = Wrapper.Detect(selectedFileName);
+            foreach (Alturos.Yolo.Model.YoloItem s in items)
             {
-                var items = yoloWrapper.Detect(selectedFileName);
-                foreach (Alturos.Yolo.Model.YoloItem s in items)
-                {
-                    view.Items.Add(new YoloData(s.Type, s.Confidence, s.X, s.Y, s.Width, s.Height));
-                }
-
+                view.Items.Add(new YoloData(s.Type, s.Confidence, s.X, s.Y, s.Width, s.Height));
             }
+            sw.Stop();
+            tb_state1.Text = sw.Elapsed.TotalMilliseconds + "ms";
             DrawBox();
         }
 
@@ -149,6 +171,7 @@ namespace Deep_WPF
                 bitmap.UriSource = new Uri(selectedFileName);
                 bitmap.EndInit();
                 image.Source = bitmap;
+                btn_det.IsEnabled = true;
             }
         }
 
