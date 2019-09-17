@@ -17,6 +17,7 @@ using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Threading;
 using System.Windows.Threading;
+using System.Windows.Media.Animation;
 
 namespace Deep_WPF
 {
@@ -40,6 +41,9 @@ namespace Deep_WPF
         List<string> classlist = new List<string>();
         Thread t1 = null;
 
+        DoubleAnimation In = new DoubleAnimation() { From = 0 , To = 1, Duration = TimeSpan.FromSeconds(0.3) };
+
+        DoubleAnimation Out = new DoubleAnimation() { From = 1, To = 0, Duration = TimeSpan.FromSeconds(0.3) };
 
         #endregion
 
@@ -323,6 +327,11 @@ namespace Deep_WPF
         private void btn_Labeling_Click(object sender, RoutedEventArgs e)
         {
             t1.Abort();
+            
+            bd_Labeling.BeginAnimation(OpacityProperty, In);
+            bd_Setting.BeginAnimation(OpacityProperty, Out);
+
+            
             bd_Setting.Visibility = Visibility.Collapsed;
             bd_Labeling.Visibility = Visibility.Visible;
             Load_Classes();

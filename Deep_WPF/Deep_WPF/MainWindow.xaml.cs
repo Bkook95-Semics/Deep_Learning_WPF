@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -51,6 +52,13 @@ namespace Deep_WPF
             if (screen != null)
             {
                 StackPanelMain.Children.Clear();
+
+                DoubleAnimation Ani = new DoubleAnimation();
+                Ani.From = 0;
+                Ani.To = 1;
+                Ani.Duration = new Duration(TimeSpan.FromSeconds(0.3));
+                screen.BeginAnimation(OpacityProperty, Ani);
+                
                 StackPanelMain.Children.Add(screen);
             }
         }
