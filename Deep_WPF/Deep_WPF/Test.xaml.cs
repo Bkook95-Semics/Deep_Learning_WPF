@@ -66,9 +66,6 @@ namespace Deep_WPF
                         bd_Testing.Visibility = Visibility.Visible;
 
                         Wrapper = new YoloWrapper(tb_cfg.Text, tb_weights.Text, tb_names.Text,0,false);
-                        MessageBox.Show(Wrapper.EnvironmentReport.CudaExists.ToString());
-
-                        MessageBox.Show(Wrapper.EnvironmentReport.CudnnExists.ToString());
                         DetectionSystem = Wrapper.DetectionSystem;
                         
                         switch (DetectionSystem)
