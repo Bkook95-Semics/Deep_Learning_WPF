@@ -96,7 +96,6 @@ namespace Deep_WPF
 
         private void drawGrid_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
             Cursor_Arrow();
             if (isdraw)
             {
@@ -120,12 +119,12 @@ namespace Deep_WPF
                 GetClass();
                 ListViewAutoScroll(lv_rectlist);
                 isdraw = false;
+                SaveLabeling();
             }
 
             if (move)
             {
                 move = false;
-
             }
         }
 
@@ -213,6 +212,7 @@ namespace Deep_WPF
                 drawcanvas.Children.Remove(Rectlist.Last());
                 Rectlist.Remove(Rectlist.Last());
                 lv_rectlist.Items.RemoveAt(lv_rectlist.Items.Count - 1);
+                SaveLabeling();
             }
 
         }
@@ -341,18 +341,8 @@ namespace Deep_WPF
         {
             if (lb_filelist.SelectedIndex != 0)
             {
-                if (CheckLabeling(lb_filelist.SelectedItem.ToString().Split('.')[0]) && lv_rectlist.Items.Count > 0)
-                {
-                    lv_rectlist.Items.Clear();
-                    Clear_draw();
-                    Rectlist.Clear();
-                }
-                else
-                    SaveLabeling();
                 lb_filelist.SelectedIndex -= 1;
             }
-
-
         }
 
         private void btn_Next_Click(object sender, RoutedEventArgs e)
@@ -377,10 +367,42 @@ namespace Deep_WPF
         {
             if (lb_filelist.Items.Count != 0 && lb_filelist.SelectedIndex > -1)
             {
-                SaveLabeling();
                 Print_Image();
-            }
 
+                if (CheckLabeling(lb_filelist.SelectedItem.ToString().Split('.')[0]))
+                {
+                    lv_rectlist.Items.Clear();
+                    Clear_draw();
+                    Rectlist.Clear();
+
+                    string[] Data = File.ReadAllLines(tb_InputDir.Text + "\\" + lb_filelist.SelectedItem.ToString().Split('.')[0] + ".txt");
+                    foreach(var line in Data)
+                    {
+                        string[] rectdata = line.Split(' ');
+                        int x, y, w, h;
+                        x = Convert.ToInt32(Convert.ToDouble(rectdata[1]) * Im_Image.Width);
+                        y = Convert.ToInt32(Convert.ToDouble(rectdata[2]) * Im_Image.Height);
+                        w = Convert.ToInt32(Convert.ToDouble(rectdata[3]) * Im_Image.Width);
+                        h = Convert.ToInt32(Convert.ToDouble(rectdata[4]) * Im_Image.Height);
+                        lv_rectlist.Items.Add(new RectListView
+                        {
+                            Name = classlist[int.Parse(rectdata[0])],
+                            SPosX =x,
+                            SPosY = y,
+                            W = w,
+                            H = h,
+                        });
+
+                        CreteRectangle();
+                        currentRect.Margin = new Thickness(x-w/2, y-h/2, 0, 0);
+                        currentRect.Width = w;
+                        currentRect.Height = h;
+                        currentRect.Opacity = 1;
+                        currentRect.StrokeDashArray = new DoubleCollection();
+                        currentRect = null;
+                    }
+                }
+            }            
         }
 
         private void lv_rectlist_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -479,10 +501,10 @@ namespace Deep_WPF
 
         private void SaveLabeling()
         {
-            if (lv_rectlist.Items.Count > 0)
+            string labeling_Data = null;
+            string[] Name = lb_filelist.SelectedItem.ToString().Split('.');
+            try
             {
-                string labeling_Data = null;
-                string[] Name = null;
                 foreach (var data in lv_rectlist.Items)
                 {
                     var temp = data as RectListView;
@@ -495,8 +517,12 @@ namespace Deep_WPF
 
                 }
                 File.WriteAllText(tb_InputDir.Text + "\\" + Name[0] + ".txt", labeling_Data);
-
             }
+            catch
+            {
+                File.WriteAllText(tb_InputDir.Text + "\\" + Name[0] + ".txt", "");
+            }
+            
         }
 
         private int ClasstoNum(string Name)
