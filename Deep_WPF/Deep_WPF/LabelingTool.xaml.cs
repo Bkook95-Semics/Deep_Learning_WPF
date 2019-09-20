@@ -262,6 +262,14 @@ namespace Deep_WPF
                     Rectlist.RemoveAt(lv_rectlist.SelectedIndex);
                     lv_rectlist.Items.RemoveAt(lv_rectlist.SelectedIndex);
                 }
+
+                if (e.Key == Key.R)
+                {
+                    lv_rectlist.Items.Clear();
+                    Clear_draw();
+                    Rectlist.Clear();
+                    SaveLabeling();
+                }
             }
 
         }
@@ -341,23 +349,25 @@ namespace Deep_WPF
         {
             if (lb_filelist.SelectedIndex != 0)
             {
+                btn_Next.IsEnabled = true;
                 lb_filelist.SelectedIndex -= 1;
             }
+
+            if (lb_filelist.SelectedIndex == 0)
+                btn_Prev.IsEnabled = false;
+
         }
 
         private void btn_Next_Click(object sender, RoutedEventArgs e)
         {
-            if (lv_rectlist.Items.Count > 0)
+            if (lb_filelist.SelectedIndex+2 == lb_filelist.Items.Count)
             {
-                SaveLabeling();
-                if (CheckLabeling(lb_filelist.SelectedItem.ToString().Split('.')[0]))
-                {
-                    lv_rectlist.Items.Clear();
-                    Clear_draw();
-                    Rectlist.Clear();
-                }
-
+                btn_Next.IsEnabled = false;
+                lb_filelist.SelectedIndex += 1;
+                return;
             }
+
+            btn_Prev.IsEnabled = true;
             lb_filelist.SelectedIndex += 1;
         }
 
@@ -401,6 +411,12 @@ namespace Deep_WPF
                         currentRect.StrokeDashArray = new DoubleCollection();
                         currentRect = null;
                     }
+                }
+                else
+                {
+                    lv_rectlist.Items.Clear();
+                    Clear_draw();
+                    Rectlist.Clear();
                 }
             }            
         }
@@ -563,20 +579,22 @@ namespace Deep_WPF
             }
         }
 
-        #endregion
-
         void CheckSetting()
         {
-            while(true)
+            while (true)
             {
                 Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate
                 {
                     if (tb_InputDir.Text != "" && tb_InputCls.Text != "")
                     {
                         btn_Labeling.IsEnabled = true;
-                    }                        
+                    }
                 }));
             }
         }
+
+        #endregion
+
+
     }
 }

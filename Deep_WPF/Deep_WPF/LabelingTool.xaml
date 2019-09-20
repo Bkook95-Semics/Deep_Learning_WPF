@@ -10,6 +10,7 @@
 
 
     <DockPanel>
+        
         <Grid DockPanel.Dock="Top">
             <Border BorderBrush="DarkGray" BorderThickness="1" CornerRadius="1" Name="bd_Setting" Margin="5">
                 <Grid Margin="5" Name="setting" DockPanel.Dock="Top">
@@ -45,6 +46,7 @@
         </Grid>
 
         <Grid DockPanel.Dock="Top" Height="550" Keyboard.KeyDown="tab_Labeling_KeyDown">
+
             <Border BorderBrush="DarkGray" BorderThickness="1" CornerRadius="1" Name="bd_Labeling" Margin="5" Visibility="Collapsed">
                 <DockPanel>
                     <Grid DockPanel.Dock="Right">
@@ -78,10 +80,22 @@
                         <TextBlock Grid.Row="2" Grid.Column="1" Margin="5,0,0,-5" HorizontalAlignment="Center" Grid.ColumnSpan="2" Foreground="Black">File List</TextBlock>
 
                         <Border BorderBrush="#FFC2C2D1" BorderThickness="1" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" CornerRadius="5" Margin="5">
-                            <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="275" MinHeight="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" Grid.ColumnSpan="2" ></ListBox>
+                            <ListBox Grid.Row="3" Margin="5" HorizontalAlignment="Right" MinWidth="275" MinHeight="200" Name="lb_filelist" SelectionChanged="lb_filelist_SelectionChanged" Grid.ColumnSpan="2" >
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True" >
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="Foreground" Value="Black" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
                         </Border>
 
-                        <Button Grid.Row="4" Grid.Column="1" Margin="5" Name="btn_Prev" Click="btn_Prev_Click">이전</Button>
+                        <Button Grid.Row="4" Grid.Column="1" Margin="5" Name="btn_Prev" Click="btn_Prev_Click" IsEnabled="False">이전</Button>
                         <Button Grid.Row="4" Grid.Column="2" Margin="5" Name="btn_Next" Click="btn_Next_Click">다음</Button>
                     </Grid>
 

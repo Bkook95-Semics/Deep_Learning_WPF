@@ -33,7 +33,7 @@ namespace Deep_WPF
             var item0 = new ItemMenu("Labeling", menuLabeling, PackIconKind.Comment);
 
             var menuTrain = new List<SubItem>();
-            menuTrain.Add(new SubItem("Train", new OPCV()));
+            menuTrain.Add(new SubItem("Train", new Training()));
             var item1 = new ItemMenu("Train", menuTrain, PackIconKind.Schedule);
 
             var menuTest = new List<SubItem>();
