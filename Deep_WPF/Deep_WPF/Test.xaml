@@ -99,10 +99,8 @@
                     </Grid>
 
                     <Grid DockPanel.Dock="Top">
-                        <Image HorizontalAlignment="Center" Name="image" Height="400"></Image>
+                        <Image Stretch="Fill" Name="image" Height="400"></Image>
                     </Grid>
-
-
                 </DockPanel>
             </Border>
         </Grid>

@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +30,10 @@ namespace Deep_WPF
         Thread t1 = null;
         public DetectionSystem DetectionSystem = DetectionSystem.Unknown;
         YoloWrapper Wrapper;
+        List<string> classList = new List<string>();
+        Brush[] brushList;
+
+
 
 
         public Test()
@@ -108,6 +114,7 @@ namespace Deep_WPF
             if (result == true)
             {
                 tb_names.Text = fileDlg.FileName;
+                Load_Classes();
             }
         }
 
@@ -165,6 +172,7 @@ namespace Deep_WPF
             Nullable<bool> result = fileDlg.ShowDialog();
             if (result == true)
             {
+                view.Items.Clear();
                 selectedFileName = fileDlg.FileName;
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -178,13 +186,14 @@ namespace Deep_WPF
         public void DrawBox()
         {
             var src = new BitmapImage(new Uri(selectedFileName, UriKind.Absolute));
-            Pen pen = new Pen(Brushes.Blue, 3);
+            Pen pen;
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
                 dc.DrawImage(src, new Rect(0, 0, src.PixelWidth, src.PixelHeight));
                 foreach (YoloData data in view.Items)
                 {
+                    pen = new Pen(brushList[classList.IndexOf(data.Type)], 3);
                     dc.DrawRectangle(Brushes.Transparent, pen, new Rect(data.X, data.Y, data.Width, data.Height));
                 }
             }
@@ -193,5 +202,37 @@ namespace Deep_WPF
             image.Source = rtb;
         }
 
+        private void SetPenBrush(string name)
+        {
+            PropertyInfo[] brushInfo = typeof(Brushes).GetProperties();
+            Random rng = new Random();
+            int n = brushInfo.Length;
+            PropertyInfo temp;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                temp = brushInfo[k];
+                brushInfo[k] = brushInfo[n];
+                brushInfo[n] = temp;
+            }
+
+            brushList = new Brush[brushInfo.Length];
+            for (int i = 0; i < brushInfo.Length; i++)
+            {
+                brushList[i] = (Brush)brushInfo[i].GetValue(null, null);
+            }
+        }
+
+        private void Load_Classes()
+        {
+            string text = File.ReadAllText(tb_names.Text);
+            string[] split = text.Trim().Split('\n');
+            foreach (var name in split)
+            {
+                classList.Add(name.Trim());
+                SetPenBrush(name);
+            }
+        }
     }
 }

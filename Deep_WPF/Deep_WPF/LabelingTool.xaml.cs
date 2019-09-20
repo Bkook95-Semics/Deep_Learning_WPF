@@ -85,7 +85,6 @@ namespace Deep_WPF
         private void SetClass_WritePathEvent(string path)
         {
             tb_InputCls.Text = path;
-            Application.Current.MainWindow.Height = 165;
             btn_Labeling.IsEnabled = true;
         }
 
@@ -512,7 +511,6 @@ namespace Deep_WPF
             {
                 classlist.Add(name.Trim());
             }
-
         }
 
         private void SaveLabeling()
