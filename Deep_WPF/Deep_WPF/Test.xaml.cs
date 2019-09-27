@@ -33,8 +33,11 @@ namespace Deep_WPF
         List<string> classList = new List<string>();
         Brush[] brushList;
 
-
-
+        YoloData RigthPin = null;
+        YoloData LeftPin = null;
+        YoloData BotPin = null;
+        YoloData SenPin1 = null;
+        YoloData SenPin2 = null;
 
         public Test()
         {
@@ -157,6 +160,8 @@ namespace Deep_WPF
             var items = Wrapper.Detect(selectedFileName);
             foreach (Alturos.Yolo.Model.YoloItem s in items)
             {
+                if (s.Type == "pattern")
+                    continue;
                 view.Items.Add(new YoloData(s.Type, s.Confidence, s.X, s.Y, s.Width, s.Height));
             }
             sw.Stop();
@@ -196,10 +201,26 @@ namespace Deep_WPF
                     pen = new Pen(brushList[classList.IndexOf(data.Type)], 3);
                     dc.DrawRectangle(Brushes.Transparent, pen, new Rect(data.X, data.Y, data.Width, data.Height));
                 }
+
+                if(Find_Pattern())
+                {
+                    pen = new Pen(Brushes.Blue, 4);
+                    Point Left_s = new Point(LeftPin.X + LeftPin.Width / 2, LeftPin.Y + LeftPin.Height / 2);
+                    Point Right_s = new Point(RigthPin.X + RigthPin.Width / 2, RigthPin.Y + RigthPin.Height / 2);
+                    Point Sen1_s = new Point(SenPin1.X + SenPin1.Width / 2, SenPin1.Y + SenPin1.Height / 2);
+                    Point Sen2_s = new Point(SenPin2.X + SenPin2.Width / 2, SenPin2.Y + SenPin2.Height / 2);
+                    Point Bot_s = new Point(BotPin.X + BotPin.Width / 2, BotPin.Y + BotPin.Height / 2);
+                    dc.DrawLine(pen, Left_s, Sen1_s);
+                    dc.DrawLine(pen, Sen1_s, Right_s);
+                    dc.DrawLine(pen, Sen1_s, Right_s);
+                    dc.DrawLine(pen, Sen1_s, Sen2_s);
+                    dc.DrawLine(pen, Sen2_s, Bot_s);
+                }                
             }
             RenderTargetBitmap rtb = new RenderTargetBitmap(src.PixelWidth, src.PixelHeight, 96, 96, PixelFormats.Pbgra32);
             rtb.Render(dv);
             image.Source = rtb;
+            Find_Pattern();
         }
 
         private void SetPenBrush(string name)
@@ -234,5 +255,132 @@ namespace Deep_WPF
                 SetPenBrush(name);
             }
         }
+
+        private bool Find_Pattern()
+        {
+            List<YoloData> datas = new List<YoloData>();
+            foreach (YoloData data in view.Items)
+            {
+                datas.Add(data);
+            }
+
+            int min_r = Int32.MaxValue;
+            int min_b = Int32.MaxValue;
+            int min_s1 = Int32.MaxValue;
+            int min_s2 = Int32.MaxValue;
+
+            RigthPin = null;
+            LeftPin = null;
+            BotPin = null;
+            SenPin1 = null;
+            SenPin2 = null;
+
+            // 3개 핀으로 패턴 범위 찾기
+            for (int i = 0; i < datas.Count; i ++)
+            {
+                if (datas[i].Type == "pin")
+                {
+                    for (int j = 0; j < datas.Count; j++)
+                    {
+                        if (datas[j].X > datas[i].X)
+                        {
+                            int temp_r = Math.Abs(datas[j].X - datas[i].X - 103) + Math.Abs(datas[j].Y - datas[i].Y - 5); 
+                            int temp_b = Math.Abs(datas[j].X - datas[i].X - 24) + Math.Abs(datas[j].Y - datas[i].Y - 135);
+                            if (min_r > temp_r)
+                            {
+                                min_r = temp_r;
+                                RigthPin = datas[j];
+                                LeftPin = datas[i];
+                            }
+
+                            if(min_b > temp_b)
+                            {
+                                min_b = temp_b;
+                                BotPin = datas[j];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 찾은 범위 안에 존재하는 핀 갯수 세기
+            int count = 0;
+            for (int i = 0; i < datas.Count; i++)
+            {
+                if (datas[i].Type != "pin")
+                    datas.Remove(datas[i]);
+                    
+                if(datas[i].X >= LeftPin.X && datas[i].X <= RigthPin.X+RigthPin.Width  && datas[i].Y >= LeftPin.Y && datas[i].Y <= BotPin.Y+BotPin.Height)
+                {
+                    count++;
+                }
+            }
+
+            if (count == 5) 
+            {
+                datas.Remove(RigthPin);
+                datas.Remove(LeftPin);
+                datas.Remove(BotPin);
+
+                for (int i = 0; i < datas.Count; i++) 
+                {
+                    if (LeftPin.X < datas[i].X)
+                    {
+                        int temp_s1 = Math.Abs(datas[i].X - LeftPin.X - 28) + Math.Abs(datas[i].Y - LeftPin.Y - 28);
+                        if (min_s1 > temp_s1)
+                        {
+                            min_s1 = temp_s1;
+                            SenPin1 = datas[i];
+                        }
+                    }
+                }
+
+
+                datas.Remove(SenPin1);
+
+                for (int i = 0; i < datas.Count; i++)
+                {
+                    int temp_s2 = Math.Abs(SenPin1.X - datas[i].X-1)+ Math.Abs(datas[i].Y - SenPin1.Y-56);
+                    if (min_s2 > temp_s2)
+                    {
+                        min_s2 = temp_s2;
+                        SenPin2 = datas[i];
+                    }
+                }
+            }
+
+
+
+            //오차범위, 오직 5개의 핀으로 구성되어있는 패턴
+            if (min_b < 8 && min_r < 8 && min_s1 < 8 && min_s2 < 8 && count == 5)
+            {
+                return true;
+                //var src = new BitmapImage(new Uri(selectedFileName, UriKind.Absolute));
+                //Pen pen;
+                //DrawingVisual dv = new DrawingVisual();
+                //using (DrawingContext dc = dv.RenderOpen())
+                //{
+                //    dc.DrawImage(src, new Rect(0, 0, src.PixelWidth, src.PixelHeight));
+                //    pen = new Pen(Brushes.Blue, 3);
+                //    //dc.DrawRectangle(Brushes.Transparent, pen, new Rect(LeftPin.X, LeftPin.Y, RigthPin.X - LeftPin.X + RigthPin.Width, BotPin.Y - LeftPin.Y + BotPin.Height));
+                //    Point Left_s = new Point(LeftPin.X + LeftPin.Width / 2, LeftPin.Y + LeftPin.Height / 2);
+                //    Point Right_s = new Point(RigthPin.X + RigthPin.Width / 2, RigthPin.Y + RigthPin.Height / 2);
+                //    Point Sen1_s = new Point(SenPin1.X + SenPin1.Width / 2, SenPin1.Y + SenPin1.Height / 2);
+                //    Point Sen2_s = new Point(SenPin2.X + SenPin2.Width / 2, SenPin2.Y + SenPin2.Height / 2);
+                //    Point Bot_s = new Point(BotPin.X + BotPin.Width / 2, BotPin.Y + BotPin.Height / 2);
+                //    dc.DrawLine(pen, Left_s, Sen1_s);
+                //    dc.DrawLine(pen, Sen1_s, Right_s);
+                //    dc.DrawLine(pen, Sen1_s, Right_s);
+                //    dc.DrawLine(pen, Sen1_s, Sen2_s);
+                //    dc.DrawLine(pen, Sen2_s, Bot_s);
+                //}
+                //RenderTargetBitmap rtb = new RenderTargetBitmap(src.PixelWidth, src.PixelHeight, 96, 96, PixelFormats.Pbgra32);
+                //rtb.Render(dv);
+                //image.Source = rtb;                
+            }
+
+            return false;
+        }
+        
     }
 }

@@ -33,7 +33,7 @@ namespace Deep_WPF
 
         //경로 변수
         public string darknetFolderPath;
-        public string darknetDataFolderMiddlePath = "\\build\\darknet\\x64\\data\\";
+        public string darknetDataFolderMiddlePath = "";
         public string trainFilePath;
         public string trainFileName;
         public string namesFilePath;
